@@ -250,13 +250,22 @@
 
             document.querySelector('.single-pro-details button').addEventListener('click', function () {
                if (cart.length > 0) {
-                   for(let i=0; i<cart.length; i++) {
-                       if(cart[i].id == id) {
-                           cart[i].quantity = qty.value;
-                           localStorage.setItem('cart', JSON.stringify(cart));
-                           return;
-                       }
-                   }
+                    if(!item) {
+                            cart.push({
+                                id: id,
+                                quantity: qty.value,
+                                name: title.innerHTML,
+                                price: price.innerHTML,
+
+                            });
+                } else {
+                    cart = cart.map(function (v) {
+                        if(v.id == id) {
+                            v.quantity = qty.value;
+                        }
+                        return v;
+                    })
+                }
                } else {
                      cart.push({
                           id: id,
@@ -266,7 +275,6 @@
 
                      });
                }
-               
                
                localStorage.setItem('cart', JSON.stringify(cart));
             })
