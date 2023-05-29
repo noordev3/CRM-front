@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
 
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
@@ -86,7 +87,7 @@
                     <td><strong>$ 335</strong></td>
                 </tr>
             </table>
-            <button class="normal">Proceed to checkout</button>
+            <button class="normal" onclick="makeOrder()">Proceed to checkout</button>
         </div>
     </section>
 
@@ -147,6 +148,7 @@
         let tbody = document.querySelector('tbody');
         let cart = JSON.parse(localStorage.getItem('cart'));
         let total = 0;
+        let qty = 0;
 
         cart.forEach((item, index) => {
             let tr = document.createElement('tr');
@@ -160,6 +162,7 @@
             `;
             tbody.appendChild(tr);
             total += item.price.split("$")[1] * item.quantity;
+            qty += item.quantity;
         });
         document.querySelector('#subtotal td:nth-child(2)').innerHTML = `$ ${total}`;
         document.querySelector('#subtotal tr:last-child td:last-child strong').innerHTML = `$ ${total}`;
@@ -172,6 +175,26 @@
                 location.reload();
             });
         });
+
+        function makeOrder() {
+            let user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                axios.post('http://127.0.0.1:8000/api/order/order', {
+                                "address_id": 1,
+                                "cost": total,
+                                "user_id": user.id,
+                                "quantity": qty,
+                                }
+                ).then(res => {
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    alert('Order has been placed');
+                }).catch(err => {
+                    console.log(err);
+                });
+            } else {
+                alert('Please login first');
+            }
+        }
     </script>
 
 </body>
