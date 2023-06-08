@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
 
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
@@ -56,30 +57,7 @@
             </thead>
 
             <tbody>
-                <tr>
-                    <td><a href="#"><i class="far fa-times-circle"></i></a></td>
-                    <td><img src="img/products/f1.jpg" alt=""></td>
-                    <td>Cartoon Astronaut T-Shirts</td>
-                    <td>$118.19</td>
-                    <td><input type="number" value="1" name="" id=""></td>
-                    <td>$118.19</td>
-                </tr>
-                <tr>
-                    <td><a href="#"><i class="far fa-times-circle"></i></a></td>
-                    <td><img src="img/products/f2.jpg" alt=""></td>
-                    <td>Cartoon Astronaut T-Shirts</td>
-                    <td>$118.19</td>
-                    <td><input type="number" value="1" name="" id=""></td>
-                    <td>$118.19</td>
-                </tr>
-                <tr>
-                    <td><a href="#"><i class="far fa-times-circle"></i></a></td>
-                    <td><img src="img/products/f3.jpg" alt=""></td>
-                    <td>Cartoon Astronaut T-Shirts</td>
-                    <td>$118.19</td>
-                    <td><input type="number" value="1" name="" id=""></td>
-                    <td>$118.19</td>
-                </tr>
+               
             </tbody>
         </table>
     </section>
@@ -109,7 +87,7 @@
                     <td><strong>$ 335</strong></td>
                 </tr>
             </table>
-            <button class="normal">Proceed to checkout</button>
+            <button class="normal" onclick="makeOrder()">Proceed to checkout</button>
         </div>
     </section>
 
@@ -166,6 +144,54 @@
 
 
     <script src="script.js"></script>
+    <script>
+        let tbody = document.querySelector('tbody');
+        let cart = JSON.parse(localStorage.getItem('cart'));
+        let total = 0;
+        let qty = 0;
+
+        cart.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><a href="#" id="remove"><i class="far fa-times"></i></a></td>
+                <td><img src="${item.img}" alt=""></td>
+                <td>${item.name}</td>
+                <td>${item.price}</td>
+                <td><input type="number" value="${item.quantity}" min="1" disabled></td>
+                <td>$${item.price.split("$")[1] * item.quantity}</td>
+            `;
+            tbody.appendChild(tr);
+            total += item.price.split("$")[1] * item.quantity;
+            qty += item.quantity;
+        });
+        document.querySelector('#subtotal td:nth-child(2)').innerHTML = `$ ${total}`;
+        document.querySelector('#subtotal tr:last-child td:last-child strong').innerHTML = `$ ${total}`;
+
+
+        document.querySelectorAll('#remove').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                location.reload();
+            });
+        });
+
+        function makeOrder() {
+            let user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                axios.get(`http://127.0.0.1:8000/api/order/orderCheck?user_id=${user.id}&cost=${total}&quantity=${qty}`).then(res => {
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    alert('Order has been placed');
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    location.href = 'index.html';
+                }).catch(err => {
+                    console.log(err);
+                });
+            } else {
+                alert('Please login first');
+            }
+        }
+    </script>
 
 </body>
 
