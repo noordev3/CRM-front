@@ -177,9 +177,22 @@
         });
 
         function makeOrder() {
+            let items = [];
+            cart.forEach(item => {
+                items.push({
+                    id: item.id,
+                    qty: item.quantity
+                });
+            });
+
+            let full_query = '';
+            items.forEach(item => {
+                full_query += `&item=${item.id}&qty=${item.qty}`;
+            });
+
             let user = JSON.parse(localStorage.getItem('user'));
             if (user) {
-                axios.get(`http://127.0.0.1:8000/api/order/orderCheck?user_id=${user.id}&cost=${total}&quantity=${qty}`).then(res => {
+                axios.get(`http://127.0.0.1:8000/api/order/orderCheck?user_id=${user.id}&cost=${total}&quantity=${qty}${full_query}`).then(res => {
                     localStorage.setItem('cart', JSON.stringify([]));
                     alert('Order has been placed');
                     localStorage.setItem('cart', JSON.stringify([]));
